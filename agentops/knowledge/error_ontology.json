@@ -1,0 +1,633 @@
+{
+  "_category_map": {
+    "description": "Maps detailed error types to 6 main failure categories used by RAG Router",
+    "categories": {
+      "build_artifact": "Build compilation, toolchain, environment failures",
+      "dependency": "Dependency resolution, version conflicts",
+      "merge_conflict": "Git merge conflicts, .pbxproj, Podfile.lock conflicts",
+      "signing": "Code signing, certificates, provisioning profiles, keystores",
+      "authentication": "Auth failures, credentials, tokens, permissions",
+      "resource": "Memory, disk, timeout, runner availability"
+    }
+  },
+
+  "dependency_error": {
+    "main_category": "dependency",
+    "patterns": [
+      "failed to resolve",
+      "cannot find dependency",
+      "package .* not found",
+      "dependency resolution failed",
+      "could not resolve .* dependency",
+      "no such module",
+      "module not found",
+      "pod .* not found",
+      "unable to find a specification for",
+      "error: package .* has no member"
+    ],
+    "platforms": ["ios", "android", "shared"],
+    "explanation": "The build failed due to unresolved or missing dependencies.",
+    "fix_template": "Check package repositories (CocoaPods/SPM/Maven/Gradle). Ensure dependency names and versions are correct and repos are reachable."
+  },
+
+  "version_conflict": {
+    "main_category": "dependency",
+    "patterns": [
+      "version conflict",
+      "cannot find compatible versions",
+      "conflicts with existing version",
+      "incompatible versions",
+      "requires .* but .* is requested",
+      "downgrade required",
+      "target has transitive dependencies",
+      "configuration .* conflicts"
+    ],
+    "platforms": ["ios", "android", "shared"],
+    "explanation": "Multiple dependencies require incompatible versions of the same library.",
+    "fix_template": "Unify versions across modules, pin a single compatible version, or adjust constraints to avoid conflicts."
+  },
+
+  "build_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "Build failed",
+      "build step .* failed",
+      "exit code 1",
+      "exit code 65",
+      "build input file cannot be found",
+      "failed to produce diagnostic",
+      "compilation failed",
+      "error: build had errors"
+    ],
+    "platforms": ["shared"],
+    "explanation": "A generic build failure occurred due to configuration, environment or compilation issues.",
+    "fix_template": "Inspect the first failing task in the logs. Focus on the earliest error message and verify build configuration and environment."
+  },
+
+  "compilation_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "cannot find symbol",
+      "use of unresolved identifier",
+      "unresolved reference",
+      "type mismatch",
+      "value of type .* has no member",
+      "cannot convert value of type",
+      "expected .* argument label",
+      "ambiguous use of",
+      "cannot call value of non-function type"
+    ],
+    "platforms": ["ios", "android"],
+    "explanation": "The compiler failed to build source code due to missing imports, undefined symbols or type issues.",
+    "fix_template": "Fix imports, module references, and types. Ensure source files are included in the target and libraries are linked."
+  },
+
+  "test_failure": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "test failed",
+      "test suite .* failed",
+      "AssertionError",
+      "expected .* but got .*",
+      "XCTestCase.*failed",
+      "FAILED.*tests",
+      "failing tests",
+      "tests? execution failed"
+    ],
+    "platforms": ["shared"],
+    "explanation": "One or more unit or UI tests failed during CI execution.",
+    "fix_template": "Identify the failing test case, review the assertion, and adjust either the test expectations or the implementation logic."
+  },
+
+  "config_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "invalid configuration",
+      "missing configuration",
+      "Unknown option",
+      "property .* is not defined",
+      "invalid scheme",
+      "no scheme named",
+      "xcconfig.*not found",
+      "build setting .* not found"
+    ],
+    "platforms": ["shared"],
+    "explanation": "CI or build configuration contains invalid or missing settings.",
+    "fix_template": "Review pipeline YAML/JSON and project config files. Ensure all required keys and values are present and correctly typed."
+  },
+
+  "environment_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "command not found",
+      "tool not installed",
+      "No such file or directory: .*gradle",
+      "No such file or directory: .*xcodebuild",
+      "xcode-select: error",
+      "xcrun: error",
+      "java.* not found",
+      "JAVA_HOME is not set"
+    ],
+    "platforms": ["shared"],
+    "explanation": "Required tools or environment dependencies are missing on the CI runner.",
+    "fix_template": "Install required SDKs, CLIs, and tools on the CI image or use a proper stack image that matches local development."
+  },
+
+  "network_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "Failed to connect",
+      "Connection timed out",
+      "Could not resolve host",
+      "SSL: CERTIFICATE_VERIFY_FAILED",
+      "Read timed out",
+      "Network is unreachable",
+      "failed to fetch",
+      "download failed"
+    ],
+    "platforms": ["shared"],
+    "explanation": "Network connectivity or TLS/SSL issues prevented dependencies or resources from being fetched.",
+    "fix_template": "Check proxy, VPN, firewall and SSL certificate settings. Consider retries or alternative mirrors for dependency downloads."
+  },
+
+  "toolchain_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "toolchain is not supported",
+      "incompatible toolchain",
+      "unsupported target",
+      "failed to invoke compiler",
+      "swift compiler error",
+      "clang: error:",
+      "ld: error:",
+      "linker command failed"
+    ],
+    "platforms": ["shared"],
+    "explanation": "The compiler or build toolchain version is incompatible with the project or target platform.",
+    "fix_template": "Align compiler and SDK versions with the project requirements. Update or downgrade toolchain versions on CI."
+  },
+
+  "permission_error": {
+    "main_category": "authentication",
+    "patterns": [
+      "Permission denied",
+      "Operation not permitted",
+      "EACCES",
+      "chmod.*failed",
+      "cannot write to"
+    ],
+    "platforms": ["shared"],
+    "explanation": "The CI process lacks file system or OS-level permissions.",
+    "fix_template": "Ensure the CI user has permissions to read/write required paths, access certificates, and execute scripts."
+  },
+
+  "credential_error": {
+    "main_category": "authentication",
+    "patterns": [
+      "authentication failed",
+      "invalid credentials",
+      "401 Unauthorized",
+      "access denied",
+      "bad credentials",
+      "invalid username or password",
+      "token expired",
+      "credential helper failed"
+    ],
+    "platforms": ["shared"],
+    "explanation": "Authentication to a remote service (Git, artifact repo, API) failed.",
+    "fix_template": "Check tokens, API keys, and credentials. Rotate secrets if expired and ensure they are correctly injected into CI."
+  },
+
+  "timeout_error": {
+    "main_category": "resource",
+    "patterns": [
+      "Job exceeded the maximum time",
+      "timeout after",
+      "operation timed out",
+      "timed out waiting",
+      "deadline exceeded",
+      "signal: killed"
+    ],
+    "platforms": ["shared"],
+    "explanation": "The CI job or a specific step exceeded the configured time limit.",
+    "fix_template": "Optimize the long-running step or increase the CI timeout limit. Consider caching or splitting the job into smaller steps."
+  },
+
+  "resource_not_found_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "No such file or directory",
+      "file not found",
+      "module file not found",
+      "target .* not found",
+      "scheme .* not found"
+    ],
+    "platforms": ["shared"],
+    "explanation": "A referenced file, module, or resource is missing.",
+    "fix_template": "Ensure the file is committed, path is correct, and it is included in the build context and repository."
+  },
+
+  "script_execution_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "script returned exit code",
+      "bash: line .*: error",
+      "shell script failed",
+      "phase script execution failed",
+      "build phase .* failed"
+    ],
+    "platforms": ["shared"],
+    "explanation": "A custom shell or script task failed.",
+    "fix_template": "Add error handling and verbose logging to the script. Validate environment variables and script arguments."
+  },
+
+  "cache_corruption_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "cache is corrupted",
+      "Failed to restore cache",
+      "checksum mismatch for cache",
+      "derived data.*corrupted",
+      "module cache.*invalid"
+    ],
+    "platforms": ["shared"],
+    "explanation": "CI cache could not be restored or is corrupted.",
+    "fix_template": "Invalidate or clear the cache and allow it to be rebuilt. Ensure cache keys are stable but change with important config changes."
+  },
+
+  "memory_limit_error": {
+    "main_category": "resource",
+    "patterns": [
+      "OutOfMemoryError",
+      "Java heap space",
+      "Killed process due to out of memory",
+      "out of memory",
+      "memory pressure",
+      "cannot allocate memory"
+    ],
+    "platforms": ["shared"],
+    "explanation": "The build or test process exceeded available memory.",
+    "fix_template": "Increase memory limits, reduce parallelism, or optimize heavy tasks to use less memory."
+  },
+
+  "disk_space_error": {
+    "main_category": "resource",
+    "patterns": [
+      "No space left on device",
+      "disk quota exceeded",
+      "not enough disk space",
+      "insufficient space"
+    ],
+    "platforms": ["shared"],
+    "explanation": "The CI runner ran out of disk space.",
+    "fix_template": "Clean up old artifacts, caches, and logs. Use smaller Docker images or increase disk quota."
+  },
+
+  "runner_environment_error": {
+    "main_category": "resource",
+    "patterns": [
+      "runner is not available",
+      "no compatible agents",
+      "missing required label",
+      "no agents available",
+      "executor is not available"
+    ],
+    "platforms": ["shared"],
+    "explanation": "No CI runner with the required capabilities was available.",
+    "fix_template": "Configure runners with matching labels and capabilities. Adjust pipeline requirements or use another executor."
+  },
+
+  "api_rate_limit_error": {
+    "main_category": "authentication",
+    "patterns": [
+      "API rate limit exceeded",
+      "HTTP 429",
+      "too many requests",
+      "rate limit reached",
+      "secondary rate limit"
+    ],
+    "platforms": ["shared"],
+    "explanation": "External API calls or repository operations hit a rate limit.",
+    "fix_template": "Add retries with backoff, cache repeated calls, or authenticate to get higher rate limits."
+  },
+
+  "authentication_error": {
+    "main_category": "authentication",
+    "patterns": [
+      "failed to authenticate",
+      "invalid token",
+      "authentication required",
+      "unauthenticated",
+      "please sign in"
+    ],
+    "platforms": ["shared"],
+    "explanation": "Authentication to a service or registry failed.",
+    "fix_template": "Verify tokens, login commands and environment variable names for credentials."
+  },
+
+  "authorization_error": {
+    "main_category": "authentication",
+    "patterns": [
+      "forbidden",
+      "HTTP 403",
+      "insufficient permissions",
+      "not authorized",
+      "access forbidden"
+    ],
+    "platforms": ["shared"],
+    "explanation": "The CI user or token lacks required permissions for the operation.",
+    "fix_template": "Grant appropriate roles or permissions, or use a different service account with sufficient access."
+  },
+
+  "git_checkout_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "failed to fetch",
+      "could not read from remote repository",
+      "reference not found",
+      "couldn't find remote ref",
+      "fatal: repository .* not found"
+    ],
+    "platforms": ["shared"],
+    "explanation": "Git checkout or fetch operation failed.",
+    "fix_template": "Verify repository URL, branch names, and access rights. Ensure the commit or tag exists."
+  },
+
+  "merge_conflict_error": {
+    "main_category": "merge_conflict",
+    "patterns": [
+      "Automatic merge failed",
+      "CONFLICT \\(content\\): merge conflict",
+      "<<<<<<< HEAD",
+      ">>>>>>> ",
+      "merge conflict in",
+      "CONFLICT \\(add/add\\)",
+      "CONFLICT \\(modify/delete\\)"
+    ],
+    "platforms": ["shared"],
+    "explanation": "A merge operation encountered conflicting file changes.",
+    "fix_template": "Resolve conflicts locally, commit the merge result, and push again."
+  },
+
+  "pbxproj_conflict_error": {
+    "main_category": "merge_conflict",
+    "patterns": [
+      "project\\.pbxproj.*conflict",
+      "<<<<<<< HEAD.*pbxproj",
+      "CONFLICT.*project\\.pbxproj",
+      "pbxproj.*merge",
+      "xcode project.*conflict"
+    ],
+    "platforms": ["ios"],
+    "explanation": "Xcode project file (.pbxproj) has merge conflicts, typically from parallel feature branches.",
+    "fix_template": "Use a .pbxproj-aware merge tool or manually resolve by keeping required target memberships and build phases from both branches."
+  },
+
+  "podfile_conflict_error": {
+    "main_category": "merge_conflict",
+    "patterns": [
+      "Podfile\\.lock.*conflict",
+      "<<<<<<< HEAD.*Podfile",
+      "CONFLICT.*Podfile",
+      "podfile.*merge conflict"
+    ],
+    "platforms": ["ios"],
+    "explanation": "Podfile or Podfile.lock has merge conflicts from dependency version changes in parallel branches.",
+    "fix_template": "Delete Podfile.lock, run 'pod install' fresh, and commit the regenerated lockfile."
+  },
+
+  "gradle_conflict_error": {
+    "main_category": "merge_conflict",
+    "patterns": [
+      "build\\.gradle.*conflict",
+      "<<<<<<< HEAD.*gradle",
+      "CONFLICT.*build\\.gradle",
+      "gradle.*merge conflict",
+      "settings\\.gradle.*conflict"
+    ],
+    "platforms": ["android"],
+    "explanation": "Gradle build files have merge conflicts from dependency or configuration changes.",
+    "fix_template": "Manually resolve Gradle file conflicts ensuring consistent dependency versions and configuration blocks."
+  },
+
+  "yaml_parse_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "YAML parse error",
+      "could not find expected ':'",
+      "mapping values are not allowed here",
+      "yaml: line",
+      "invalid yaml"
+    ],
+    "platforms": ["shared"],
+    "explanation": "The CI pipeline YAML configuration is syntactically invalid.",
+    "fix_template": "Use a YAML linter and fix indentations, colons, and list structures."
+  },
+
+  "secret_missing_error": {
+    "main_category": "authentication",
+    "patterns": [
+      "secret .* not found",
+      "environment variable .* is required",
+      "missing required secret",
+      "env var .* not set",
+      "required environment variable"
+    ],
+    "platforms": ["shared"],
+    "explanation": "A required secret or environment variable is missing in CI.",
+    "fix_template": "Add the secret to CI secret store and reference it using the correct variable name."
+  },
+
+  "ios_toolchain_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "xcodebuild: error:",
+      "clang: error:",
+      "ld: warning: directory not found",
+      "ld: library not found",
+      "framework not found",
+      "module map file.*not found"
+    ],
+    "platforms": ["ios"],
+    "explanation": "The iOS toolchain (Xcode, clang, linker) failed to build the target.",
+    "fix_template": "Ensure Xcode and SDK versions used in CI match local development. Clean build artifacts and re-run."
+  },
+
+  "xcodebuild_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "xcodebuild: error:",
+      "ERROR ITMS",
+      "archive action failed",
+      "no valid .* were found",
+      "xcodebuild.*failed with exit code"
+    ],
+    "platforms": ["ios"],
+    "explanation": "xcodebuild failed due to code signing, scheme or archive configuration issues.",
+    "fix_template": "Validate scheme names, archive settings, signing identities, and provisioning profiles."
+  },
+
+  "provisioning_profile_error": {
+    "main_category": "signing",
+    "patterns": [
+      "No profiles for",
+      "Provisioning profile .* not found",
+      "requires a development team",
+      "no provisioning profiles with",
+      "embedded provisioning profile",
+      "profile doesn't include",
+      "entitlements.*provisioning"
+    ],
+    "platforms": ["ios"],
+    "explanation": "Provisioning profile or team configuration is missing or mismatched.",
+    "fix_template": "Ensure the correct team ID, bundle ID, and provisioning profile are configured and installed on CI."
+  },
+
+  "codesign_error": {
+    "main_category": "signing",
+    "patterns": [
+      "CodeSign error",
+      "codesign failed",
+      "resource fork, Finder information, or similar detritus not allowed",
+      "code signing is required",
+      "signing certificate .* not found",
+      "no signing identity found",
+      "invalid entitlements"
+    ],
+    "platforms": ["ios"],
+    "explanation": "Code signing failed for the iOS app or framework.",
+    "fix_template": "Check certificates, provisioning profiles, entitlements, and bundle identifiers for consistency."
+  },
+
+  "cocoapods_error": {
+    "main_category": "dependency",
+    "patterns": [
+      "pod install",
+      "unable to satisfy the following requirements",
+      "podspec not found",
+      "pod .* not found",
+      "CocoaPods could not find",
+      "Unable to find a pod with name",
+      "pod repo update"
+    ],
+    "platforms": ["ios"],
+    "explanation": "CocoaPods dependency resolution or installation failed.",
+    "fix_template": "Run 'pod repo update', verify Podfile entries, and ensure private specs repos are accessible."
+  },
+
+  "swift_package_manager_error": {
+    "main_category": "dependency",
+    "patterns": [
+      "failed retrieving manifest",
+      "package resolution failed",
+      "no Package.swift found",
+      "error: no such module",
+      "could not resolve package dependencies",
+      "package .* is required using",
+      "checksum of the source archive"
+    ],
+    "platforms": ["ios"],
+    "explanation": "Swift Package Manager failed to resolve or fetch packages.",
+    "fix_template": "Verify package URLs, versions, and branch references. Ensure network access to Git hosts."
+  },
+
+  "simulator_error": {
+    "main_category": "resource",
+    "patterns": [
+      "Failed to boot simulator",
+      "Unable to find a destination matching",
+      "iOS Simulator failed to install",
+      "simctl.*failed",
+      "CoreSimulator"
+    ],
+    "platforms": ["ios"],
+    "explanation": "The iOS simulator could not be started or used for tests.",
+    "fix_template": "Match simulator runtime and device type with installed SDKs. Pre-create required simulators on CI image."
+  },
+
+  "keystore_error": {
+    "main_category": "signing",
+    "patterns": [
+      "Keystore was tampered with",
+      "Keystore file not found",
+      "Failed to load key store",
+      "keystore password was incorrect",
+      "jks.*not found",
+      "signing config.*keystore"
+    ],
+    "platforms": ["android"],
+    "explanation": "Android signing keystore is missing, corrupted, or has invalid credentials.",
+    "fix_template": "Store the keystore as a CI secret or secure file. Ensure correct store password, key alias, and key password."
+  },
+
+  "gradle_sync_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "Gradle sync failed",
+      "Could not resolve",
+      "A problem occurred evaluating project",
+      "Could not get unknown property",
+      "Gradle build daemon disappeared",
+      "Execution failed for task"
+    ],
+    "platforms": ["android"],
+    "explanation": "Gradle sync or configuration evaluation failed.",
+    "fix_template": "Check Gradle plugin versions, repositories blocks, and build.gradle syntax."
+  },
+
+  "android_manifest_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "AndroidManifest.xml",
+      "manifest merger failed",
+      "Attribute application@.* is also present",
+      "uses-sdk:minSdkVersion .* cannot be smaller",
+      "android:allowBackup"
+    ],
+    "platforms": ["android"],
+    "explanation": "AndroidManifest merging or configuration failed.",
+    "fix_template": "Resolve conflicting attributes, ensure package names and application IDs are consistent across modules."
+  },
+
+  "kotlin_compiler_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "Kotlin: error:",
+      "unresolved reference:",
+      "type inference failed",
+      "kotlin.*compilation error",
+      "error: type mismatch"
+    ],
+    "platforms": ["android"],
+    "explanation": "Kotlin code failed to compile.",
+    "fix_template": "Fix unresolved references, nullability issues, and generic type mismatches. Sync Gradle after major changes."
+  },
+
+  "android_sdk_missing_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "SDK location not found",
+      "failed to find target with hash string",
+      "ANDROID_HOME is not set",
+      "Android SDK not found",
+      "sdk.dir .* does not exist"
+    ],
+    "platforms": ["android"],
+    "explanation": "Required Android SDK components are missing.",
+    "fix_template": "Install the required SDK platforms, build-tools, and set ANDROID_HOME or sdk.dir correctly."
+  },
+
+  "android_resource_merge_error": {
+    "main_category": "build_artifact",
+    "patterns": [
+      "resource merge failed",
+      "duplicate resources",
+      "AAPT: error: resource",
+      "resource .* already defined",
+      "multiple dex files"
+    ],
+    "platforms": ["android"],
+    "explanation": "Android resource files could not be merged due to conflicts or duplicates.",
+    "fix_template": "Resolve conflicting resource names and ensure resource qualifiers are consistent."
+  }
+}
