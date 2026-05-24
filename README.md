@@ -31,7 +31,7 @@ Dependency RAG                   Conflict Resolution
                    │  retrieved context
                    ▼
           ┌─────────────────┐
-          │   Ollama LLM    │  ← qwen2.5, runs locally
+          │   Ollama LLM    │  ← llama3.1:8b, runs locally
           └────────┬────────┘
                    │
                    ▼
@@ -70,7 +70,7 @@ Dependency RAG                   Conflict Resolution
 |---|---|---|
 | Vector Store | 4 Qdrant collections | [Qdrant](https://qdrant.tech) |
 | Embeddings | `nomic-embed-text` | [Ollama](https://ollama.com) |
-| LLM | `qwen2.5` | [Ollama](https://ollama.com) |
+| LLM | `llama3.1:8b` | [Ollama](https://ollama.com) |
 | Orchestration | Python 3.11+ | — |
 | Workflow | Webhook → Slack / Bitbucket | [n8n](https://n8n.io) |
 | CI System | Jenkins Pipelines | Jenkinsfile |
@@ -140,7 +140,7 @@ brew install ollama
 ollama serve
 
 # Pull required models
-ollama pull qwen2.5
+ollama pull llama3.1:8b
 ollama pull nomic-embed-text
 ```
 
@@ -168,7 +168,7 @@ QDRANT_URL=http://localhost:6333
 
 # Ollama
 OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=qwen2.5
+OLLAMA_MODEL=llama3.1:8b
 
 # n8n (optional)
 N8N_WEBHOOK_URL=http://localhost:5678/webhook/agentops
@@ -288,7 +288,7 @@ Evaluation results comparing model versions (8B / 9B) and RAG modes (no RAG / RA
 python -m agentops.evaluation_runner \
   --dataset agentops/data/dataset.jsonl \
   --mode rag_routing \
-  --model qwen2.5:8b \
+  --model llama3.1:8b:8b \
   --output eval_results/my_run.json
 ```
 
@@ -344,7 +344,7 @@ mobile-ci-rag-analyzer/
 | `QDRANT_URL` | `http://localhost:6333` | Qdrant server address |
 | `QDRANT_API_KEY` | _(empty)_ | API key for Qdrant Cloud (optional) |
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server address |
-| `OLLAMA_MODEL` | `qwen2.5` | LLM model for analysis |
+| `OLLAMA_MODEL` | `llama3.1:8b` | LLM model for analysis |
 | `N8N_WEBHOOK_URL` | _(empty)_ | n8n webhook endpoint |
 | `BITBUCKET_HOST` | _(empty)_ | Bitbucket server host |
 | `BITBUCKET_PR_WORKSPACE` | _(empty)_ | Bitbucket workspace slug |
