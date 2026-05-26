@@ -1,8 +1,8 @@
-# Mobile CI RAG Analyzer
+# Mobile CI/CD RAG Analyzer
 
 > RAG-augmented root cause analysis for iOS & Android mobile CI/CD pipelines.
 
-Mobile CI pipelines fail in recurring, predictable patterns. This system automatically intercepts Jenkins build failures, retrieves semantically similar historical fixes from a Qdrant vector database, and generates structured root cause analysis using a locally-run LLM — entirely on-premise, no cloud API required.
+Mobile CI/CD pipelines fail in recurring, predictable patterns. This system automatically intercepts Jenkins build failures, retrieves semantically similar historical fixes from a Qdrant vector database, and generates structured root cause analysis using a locally-run LLM — entirely on-premise, no cloud API required.
 
 ---
 
